@@ -1,0 +1,50 @@
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Bot::Cobalt::Plugin::SeenURL - Bot::Cobalt plugin for detecting re-linked URLs
+
+=head1 VERSION
+
+version 0.001
+
+=head1 SYNOPSIS
+
+   ## In plugins.conf
+   SeenURL:
+      Module: Bot::Cobalt::Plugin::SeenURL
+      Opts:
+         allow_relink: 1
+         dbfile: seenurl.db
+      Priority: 2
+
+=head1 DESCRIPTION
+
+A L<Bot::Cobalt> plugin.
+
+This plugin will watch for URLs linked and inform the linker (and the channel)
+it has already been linked.
+
+Two options are provided, 'allow_relink' which will not issue an OLD message 
+if the same person relinks (defaults to true), and 'dbfile' which states where
+the database file will sit under the cobalt 'var' directory.
+
+   #mychannel> https://metacpan.org/pod/distribution/Bot-Cobalt-Plugin-SeenURL
+   < mybot> OLD! ( linked on 2014-05-24 at 21:09:46 by sjm )
+
+Because this module is useful for preventing other URL-based modules from
+firing, you may wish to give it a higher priority than the default '1'.
+
+=head1 AUTHOR
+
+Scott Miller <scott.j.miller@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2014 by Scott Miller.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
