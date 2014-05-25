@@ -18,26 +18,44 @@ sub db           { shift->{db}           }
 sub allow_relink { shift->{allow_relink} }
 
 sub linked {
-   my $self = shift;
-   my $url  = shift;
-   my $nick = shift;
+   my $self    = shift;
+   my $url     = shift;
+   my $nick    = shift;
+   my $channel = shift;
+
+   my $links;
+   my $linked;
 
    $self->db->dbopen;
 
-   if ( my $link = $self->db->get($url) ) {
-      $self->db->dbclose;
-      return $link;
+   if ( $links = $self->db->get($url) ) {
+      foreach my $link (@$links) {         
+         if ($link->{channel} eq $channel) {            
+            $linked = $link;
+            last;
+         }
+      }
    }
-   else {
+
+   if ( not defined $linked ) {
       my $link = {
          datetime => DateTime::Tiny->now->as_string,
+         channel  => $channel,
          nick     => $nick,
       };
 
-      $self->db->put($url => $link);
-      $self->db->dbclose;
-      return 0;
+      if ( defined $links ) {
+         push @$links, $link;         
+      }
+      else {         
+         $links = [ $link ];
+      }      
+      $self->db->put($url => $links);      
    }
+
+   $self->db->dbclose;
+
+   return $linked;
 }
 
 sub Cobalt_register {
@@ -79,7 +97,7 @@ sub Bot_public_msg {
    foreach my $uri ( list_uris($msg->message) ) {
       next if not $uri;
 
-      if ( my $link = $self->linked($uri, $nick) ) {
+      if ( my $link = $self->linked($uri, $nick, $channel) ) {
          if ( $nick = $link->{nick} ) {
             $relink++;
             next if $self->allow_relink;
@@ -133,4 +151,4 @@ the database file will sit under the cobalt 'var' directory.
    < mybot> OLD! ( linked on 2014-05-24 at 21:09:46 by sjm )
 
 Because this module is useful for preventing other URL-based modules from
-firing, you may wish to give it a higher priority than the default '1'.
+firing, you may wish to give it a higher priority than the default '1'
