@@ -98,7 +98,7 @@ sub Bot_public_msg {
       next if not $uri;
 
       if ( my $link = $self->linked($uri, $nick, $channel) ) {
-         if ( $nick = $link->{nick} ) {
+         if ( $nick eq $link->{nick} ) {
             $relink++;
             next if $self->allow_relink;
          }
